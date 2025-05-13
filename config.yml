@@ -1,0 +1,12 @@
+ServerConfig:
+  Port: 8080
+  ProxyUrl: https://simple-proxy.ak7702401082.workers.dev?destination=
+  ProxyEnabled: true
+  MaxDepth: 10
+
+DBConfig:
+  Host:
+  Port:
+  User:
+  Password: 
+  SSL: true

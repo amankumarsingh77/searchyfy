@@ -1,0 +1,13 @@
+ProxyUrl: https://simple-proxy.ak7702401082.workers.dev?destination=
+ProxyEnabled: true
+MaxDepth: 10
+Workers: 4  # You can set this as desired
+
+Redis:
+  Host: localhost:6379
+  Port: 6379
+  User: ""          # Empty string is fine
+  Password: ""      # Leave blank if unused
+  Local: true
+  SSL: false
+  URLQueue: url_queue

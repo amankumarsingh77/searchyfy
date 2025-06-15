@@ -5,37 +5,8 @@ import (
 	"github.com/spf13/viper"
 )
 
-type CrawlerConfig struct {
-	ProxyUrl     string
-	ProxyEnabled bool
-	MaxDepth     int
-	Workers      int
-	Redis        RedisConfig
-	DB           PostgresConfig
-}
-
-type RedisConfig struct {
-	Host     string
-	Port     int
-	User     string
-	Password string
-	Local    bool
-	SSL      bool
-	URLQueue string
-}
-
-type PostgresConfig struct {
-	Host     string
-	Port     int
-	User     string
-	Password string
-	SSL      bool
-	Local    bool
-	DBName   string
-}
-
-func LoadCrawlerConfig() (*CrawlerConfig, error) {
-	viper.SetConfigName("crawler")
+func LoadCrawlerConfig(filename string) (*CrawlerConfig, error) {
+	viper.SetConfigName(filename)
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath(".")
 	var config CrawlerConfig
@@ -46,4 +17,27 @@ func LoadCrawlerConfig() (*CrawlerConfig, error) {
 		return nil, fmt.Errorf("error reading the config file %w", err)
 	}
 	return &config, nil
+}
+
+func GetDefaultConfig() *CrawlerConfig {
+	return &CrawlerConfig{
+		MaxDepth: 1,
+		Workers:  3,
+		Redis: RedisConfig{
+			Host:     "localhost:6379",
+			Port:     6379,
+			Local:    true,
+			SSL:      false,
+			URLQueue: "url_queue",
+		},
+		DB: PostgresConfig{
+			Host:     "localhost",
+			Port:     5433,
+			User:     "admin",
+			Password: "secret",
+			DBName:   "inverted_index_db",
+			SSL:      false,
+			Local:    true,
+		},
+	}
 }

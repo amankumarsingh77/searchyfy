@@ -1,13 +1,43 @@
 ProxyUrl: https://simple-proxy.ak7702401082.workers.dev?destination=
-ProxyEnabled: true
-MaxDepth: 10
-Workers: 4  # You can set this as desired
+ProxyEnabled: false
+MaxDepth: 5
+Workers: 1
 
 Redis:
   Host: localhost:6379
   Port: 6379
-  User: ""          # Empty string is fine
-  Password: ""      # Leave blank if unused
+  User: ""         
+  Password: ""      
   Local: true
   SSL: false
   URLQueue: url_queue
+
+Search:
+  WarmCache: false
+  HTTPAddr : ":8080"
+
+DB:
+  Host: localhost
+  Port: 5433
+  User: admin
+  Password: secret
+  DBName: inverted_index_db
+  SSL: false
+  Local: true
+
+Mongo:
+  URI: mongodb://localhost:27017
+  Local: true
+  DBName: searchyfy
+  CrawlerColl: rawdata
+
+Query:
+  TermCacheSize: 10000
+  PostingCacheSize: 5000
+  StemmerLang: eng
+
+Index:
+  DBURL     : postgresql://admin:secret@localhost:5433/inverted_index_db
+  PoolSize  : 100
+  Workers   : 3
+  BatchSize : 500

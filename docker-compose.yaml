@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:14
+    container_name: search_engine_postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: inverted_index_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - search_engine_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d inverted_index_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  search_engine:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: search_engine_app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://admin:secret@postgres:5432/inverted_index_db?sslmode=disable
+    ports:
+      - "8080:8080"
+    networks:
+      - search_engine_network
+    command: ["--api", "--port=8080"]
+  redis:
+    image: redislabs/rebloom:latest
+    container_name: redisbloom
+    ports:
+      - "6379:6379"
+
+networks:
+  search_engine_network:
+    driver: bridge
+
+volumes:
+  postgres_data:

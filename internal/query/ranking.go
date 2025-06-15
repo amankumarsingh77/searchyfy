@@ -3,7 +3,6 @@ package query
 import (
 	"context"
 	"fmt"
-	"log"
 	"math"
 	"sort"
 	"sync"
@@ -46,17 +45,16 @@ func (e *QueryEngine) rankResults(ctx context.Context, docIDs []int64, plan *Que
 			scored[i] = ScoredDOC{DocID: docID, Score: score}
 			mu.Unlock()
 		}(i, docID)
-		wg.Wait()
-		close(errCh)
-		if err := <-errCh; err != nil {
-			return nil, err
-		}
-		sort.Slice(scored, func(i, j int) bool {
-			return scored[i].Score > scored[j].Score
-		})
-
-		return scored, nil
 	}
+	wg.Wait()
+	close(errCh)
+	if err := <-errCh; err != nil {
+		return nil, err
+	}
+	sort.Slice(scored, func(i, j int) bool {
+		return scored[i].Score > scored[j].Score
+	})
+
 	return scored, nil
 }
 
@@ -77,14 +75,12 @@ func (e *QueryEngine) calculateBM25(
 		return 0, err
 	}
 	var docTokenCount int
-	err = e.pool.QueryRow(ctx, getDescriptionLength, docID).Scan(&docTokenCount)
+	err = e.pool.QueryRow(ctx, getDocumentTokenCount, docID).Scan(&docTokenCount)
 	if err != nil {
 		return 0, err
 	}
 
 	docLengthNorm := float64(docTokenCount) / avgTokenCount
-
-	log.Println(docTokenCount)
 
 	for _, termID := range termIDs {
 		var tf int

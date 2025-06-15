@@ -52,11 +52,12 @@ func (e *QueryEngine) fetchDocumentDetails(ctx context.Context, scoredDocs []Sco
 		}
 
 		results = append(results, SearchResult{
-			DocID:   sd.DocID,
-			URL:     doc.URL,
-			Title:   doc.Title,
-			Score:   sd.Score,
-			Snippet: generateSnippet(doc.Description, 150),
+			DocID:       sd.DocID,
+			URL:         doc.URL,
+			Title:       doc.Title,
+			Description: doc.Description,
+			Score:       sd.Score,
+			Snippet:     generateSnippet(doc.Description, 150),
 		})
 	}
 

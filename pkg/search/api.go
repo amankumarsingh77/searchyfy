@@ -20,6 +20,11 @@ func NewSearchAPI(dbPool *pgxpool.Pool, cfg *config.QueryEngineConfig) *SearchAP
 
 func (api *SearchAPI) RegisterRoutes(app *fiber.App) {
 	app.Get("/search", api.searchHandler)
+	app.Get("/", func(c *fiber.Ctx) error {
+		return c.Render("index", fiber.Map{
+			"Title": "Welcome",
+		})
+	})
 }
 
 func (api *SearchAPI) searchHandler(c *fiber.Ctx) error {

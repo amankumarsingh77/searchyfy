@@ -1,4 +1,4 @@
-ProxyUrl: https://simple-proxy.ak7702401082.workers.dev?destination=
+ProxyUrl: https://demo-proxy.workers.dev?destination=
 ProxyEnabled: false
 MaxDepth: 5
 Workers: 1

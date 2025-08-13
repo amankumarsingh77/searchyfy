@@ -3,14 +3,15 @@ package indexer
 import (
 	"context"
 	"fmt"
-	"github.com/amankumarsingh77/search_engine/config"
-	"github.com/amankumarsingh77/search_engine/models"
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"log"
 	"sort"
 	"sync"
 	"time"
+
+	"github.com/amankumarsingh77/search_engine/config"
+	"github.com/amankumarsingh77/search_engine/models"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Storage struct {
@@ -117,7 +118,6 @@ func (s *Storage) InsertPosting(
 	for term, docPositions := range positions {
 		termID, ok := termMap[term]
 		if !ok {
-			//log.Printf("WARNING: Term not found in termMap: %s", term)
 			continue
 		}
 
@@ -141,7 +141,6 @@ func (s *Storage) InsertPosting(
 		}
 	}
 
-	// Optional: Sort postings to prevent deadlocks
 	sort.Slice(allPostings, func(i, j int) bool {
 		if allPostings[i].termID == allPostings[j].termID {
 			return allPostings[i].docID < allPostings[j].docID
@@ -149,7 +148,6 @@ func (s *Storage) InsertPosting(
 		return allPostings[i].termID < allPostings[j].termID
 	})
 
-	// Step 2: Insert in batches
 	for i := 0; i < len(allPostings); i += maxBatchSize {
 		end := i + maxBatchSize
 		if end > len(allPostings) {

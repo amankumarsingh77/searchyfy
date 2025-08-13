@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classic Search Engine</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 36px;
+            font-weight: bold;
+            color: #1a0dab;
+            margin-bottom: 10px;
+        }
+
+        .logo span {
+            color: #dd4b39;
+        }
+
+        .search-box {
+            display: flex;
+            margin: 20px auto 30px;
+            max-width: 600px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid #ddd;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px 15px;
+            font-size: 16px;
+            border: none;
+            outline: none;
+        }
+
+        .search-button {
+            background: #f8f9fa;
+            border: none;
+            padding: 0 20px;
+            cursor: pointer;
+            color: #555;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        .search-button:hover {
+            background: #e8e8e8;
+        }
+
+        .results-info {
+            color: #70757a;
+            font-size: 14px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .result-item {
+            margin-bottom: 25px;
+            padding: 15px;
+            background: white;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .result-item:hover {
+            border-color: #c6c6c6;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+        }
+
+        .result-title {
+            font-size: 18px;
+            color: #1a0dab;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .result-title:hover {
+            text-decoration: underline;
+        }
+
+        .result-url {
+            color: #006621;
+            font-size: 14px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .result-snippet {
+            color: #545454;
+            font-size: 14px;
+        }
+
+        mark {
+            background-color: #fff9c4;
+            color: #333;
+            padding: 0 2px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .page-button {
+            padding: 8px 16px;
+            margin: 0 4px;
+            background: #f8f9fa;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            cursor: pointer;
+            color: #1a0dab;
+            font-size: 14px;
+        }
+
+        .page-button:hover:not(.disabled) {
+            border-color: #c6c6c6;
+            background: #f0f0f0;
+        }
+
+        .page-button.active {
+            background: #1a0dab;
+            color: white;
+            border-color: #1a0dab;
+        }
+
+        .page-button.disabled {
+            color: #70757a;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: #70757a;
+            display: none;
+        }
+
+        .loading i {
+            margin-right: 10px;
+        }
+
+        .result-stats {
+            font-size: 14px;
+            color: #70757a;
+            margin-bottom: 20px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            color: #70757a;
+            font-size: 14px;
+            margin-top: 50px;
+            border-top: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <div class="logo">Search<span>Engine</span></div>
+        <p>Professional Information Retrieval</p>
+    </header>
+
+    <div class="search-container">
+        <div class="search-box">
+            <input type="text" class="search-input" id="search-input" placeholder="Enter your search query...">
+            <button class="search-button" id="search-button">
+                <i class="fas fa-search"></i> Search
+            </button>
+        </div>
+    </div>
+
+    <div class="loading" id="loading">
+        <i class="fas fa-spinner fa-spin"></i> Searching...
+    </div>
+
+    <div id="results-container">
+        <div class="results-info">Enter a search term above to find relevant information</div>
+        <div class="result-stats" id="result-stats"></div>
+        <div id="results-list"></div>
+        <div class="pagination" id="pagination"></div>
+    </div>
+
+    <footer>
+        <p>© 2023 SearchEngine. All rights reserved.</p>
+    </footer>
+</div>
+
+<script>
+    const searchInput = document.getElementById('search-input');
+    const searchButton = document.getElementById('search-button');
+    const resultsContainer = document.getElementById('results-container');
+    const resultsList = document.getElementById('results-list');
+    const paginationContainer = document.getElementById('pagination');
+    const loadingElement = document.getElementById('loading');
+    const resultStats = document.getElementById('result-stats');
+
+    let currentPage = 1;
+    let currentQuery = '';
+    let totalPages = 0;
+    const pageSize = 10;
+
+    searchButton.addEventListener('click', performSearch);
+    searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            performSearch();
+        }
+    });
+
+    function performSearch() {
+        const query = searchInput.value.trim();
+        if (!query) return;
+
+        currentQuery = query;
+        currentPage = 1;
+
+        loadingElement.style.display = 'block';
+        resultsList.innerHTML = '';
+        paginationContainer.innerHTML = '';
+        resultStats.innerHTML = '';
+
+        fetchResults(query, currentPage);
+    }
+
+    function fetchResults(query, page) {
+        const apiUrl = `http://localhost:8080/search?q=${encodeURIComponent(query)}&page=${page}&page_size=${pageSize}`;
+
+        fetch(apiUrl)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => displayResults(data))
+            .catch(error => {
+                loadingElement.style.display = 'none';
+                resultsList.innerHTML = `<div class="results-info">Failed to fetch results. Error: ${error.message}</div>`;
+                console.error('Fetch error:', error);
+            });
+    }
+
+    function displayResults(data) {
+        loadingElement.style.display = 'none';
+
+        if (!data.results || data.results.length === 0) {
+            resultsList.innerHTML = '<div class="results-info">No results found for your query.</div>';
+            paginationContainer.innerHTML = '';
+            resultStats.innerHTML = '';
+            return;
+        }
+
+        resultStats.textContent = `About ${data.total} results (${data.response_time} seconds)`;
+
+        resultsList.innerHTML = '';
+        data.results.forEach(result => {
+            const resultElement = document.createElement('div');
+            resultElement.className = 'result-item';
+            resultElement.innerHTML = `
+                <a href="${result.url}" class="result-title" target="_blank">${result.title}</a>
+                <div class="result-url">${result.url}</div>
+                <div class="result-snippet">${result.snippet}</div>
+            `;
+            resultsList.appendChild(resultElement);
+        });
+
+        updatePagination(data.page, data.total_pages);
+    }
+
+    function updatePagination(currentPage, totalPages) {
+        paginationContainer.innerHTML = '';
+
+        const prevButton = document.createElement('button');
+        prevButton.className = `page-button ${currentPage === 1 ? 'disabled' : ''}`;
+        prevButton.innerHTML = '<i class="fas fa-chevron-left"></i> Previous';
+        prevButton.addEventListener('click', () => {
+            if (currentPage > 1) {
+                goToPage(currentPage - 1);
+            }
+        });
+        paginationContainer.appendChild(prevButton);
+
+        const startPage = Math.max(1, currentPage - 2);
+        const endPage = Math.min(totalPages, currentPage + 2);
+
+        for (let i = startPage; i <= endPage; i++) {
+            const pageButton = document.createElement('button');
+            pageButton.className = `page-button ${i === currentPage ? 'active' : ''}`;
+            pageButton.textContent = i;
+            pageButton.addEventListener('click', () => goToPage(i));
+            paginationContainer.appendChild(pageButton);
+        }
+
+        const nextButton = document.createElement('button');
+        nextButton.className = `page-button ${currentPage === totalPages ? 'disabled' : ''}`;
+        nextButton.innerHTML = 'Next <i class="fas fa-chevron-right"></i>';
+        nextButton.addEventListener('click', () => {
+            if (currentPage < totalPages) {
+                goToPage(currentPage + 1);
+            }
+        });
+        paginationContainer.appendChild(nextButton);
+    }
+
+    function goToPage(page) {
+        currentPage = page;
+        loadingElement.style.display = 'block';
+        resultsList.innerHTML = '';
+        paginationContainer.innerHTML = '';
+
+        fetchResults(currentQuery, currentPage);
+    }
+</script>
+</body>
+</html>

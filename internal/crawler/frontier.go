@@ -5,9 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
+
 	"github.com/amankumarsingh77/search_engine/config"
 	"github.com/redis/go-redis/v9"
-	"log"
 )
 
 func NewRedisClient(ctx context.Context, cfg *config.RedisConfig) (*redis.Client, error) {
@@ -68,7 +69,6 @@ func (f *urlFrontier) Seed(ctx context.Context, url string, depth int64) error {
 		return fmt.Errorf("failed to check the bloom filter: %w", err)
 	}
 	if exists {
-		//log.Printf("%s url already exists: skipping", normalizedUrl)
 		return nil
 	}
 	item := crawlItem{

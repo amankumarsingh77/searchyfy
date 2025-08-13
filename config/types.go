@@ -1,5 +1,7 @@
 package config
 
+import "time"
+
 type CrawlerConfig struct {
 	ProxyUrl     string
 	ProxyEnabled bool
@@ -37,9 +39,13 @@ type RedisConfig struct {
 }
 
 type QueryEngineConfig struct {
-	TermCacheSize    int
-	PostingCacheSize int
-	StemmerLang      string
+	TermCacheSize     int
+	PostingCacheSize  int
+	StemmerLang       string
+	MaxWorkers        int
+	BatchSize         int
+	CacheRefreshTime  time.Duration
+	DocumentCacheSize int
 }
 
 type MongoConfig struct {

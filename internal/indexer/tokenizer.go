@@ -1,12 +1,13 @@
 package indexer
 
 import (
-	"github.com/reiver/go-porterstemmer"
-	"golang.org/x/text/unicode/norm"
 	"log"
 	"regexp"
 	"strings"
 	"unicode/utf8"
+
+	"github.com/reiver/go-porterstemmer"
+	"golang.org/x/text/unicode/norm"
 )
 
 var stopWords = map[string]bool{
@@ -102,7 +103,6 @@ func hasRepeatedChars(token string, n int) bool {
 	return false
 }
 
-// Stems tokens safely and filters broken stems
 func stemTokens(tokens []string) []string {
 	var res []string
 	for _, token := range tokens {
@@ -123,7 +123,6 @@ func stemTokens(tokens []string) []string {
 	return res
 }
 
-// Final public function to normalize page and return clean tokens
 func normalizePageContent(text string) []string {
 	clean := normalize(text)
 	tokens := tokenizeAndFilter(clean)

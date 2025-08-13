@@ -10,6 +10,8 @@ import (
 	"github.com/amankumarsingh77/search_engine/internal/query"
 	"github.com/amankumarsingh77/search_engine/pkg/search"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/template/html/v2"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"log"
@@ -183,7 +185,9 @@ func main() {
 			ReadTimeout:  10 * time.Second,
 			WriteTimeout: 30 * time.Second,
 			IdleTimeout:  60 * time.Second,
+			Views:        html.New("./views", ".html"),
 		})
+		app.Use(cors.New())
 
 		// Register routes
 		searchAPI.RegisterRoutes(app) // Make sure this is adapted for *fiber.App

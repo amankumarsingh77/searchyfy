@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Search</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #533483 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated background particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: radial-gradient(circle, #64ffda, transparent);
+            border-radius: 50%;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* Morphing shapes in background */
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(40px);
+            opacity: 0.1;
+            animation: morph 15s infinite ease-in-out;
+        }
+
+        .shape1 {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .shape2 {
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(45deg, #a8e6cf, #ffd93d);
+            top: 60%;
+            right: 15%;
+            animation-delay: 5s;
+        }
+
+        .shape3 {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(45deg, #ff8a80, #82b1ff);
+            bottom: 10%;
+            left: 50%;
+            animation-delay: 10s;
+        }
+
+        @keyframes morph {
+            0%, 100% { transform: scale(1) rotate(0deg); border-radius: 50%; }
+            33% { transform: scale(1.2) rotate(120deg); border-radius: 30% 70% 70% 30%; }
+            66% { transform: scale(0.8) rotate(240deg); border-radius: 70% 30% 30% 70%; }
+        }
+
+        /* Main container */
+        .container {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        /* Logo and branding */
+        .logo {
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        .logo h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #64ffda, #ff6b6b, #ffd93d, #a8e6cf);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradient-shift 8s ease infinite;
+            letter-spacing: -2px;
+            text-shadow: 0 0 30px rgba(100, 255, 218, 0.3);
+        }
+
+        .logo p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.2rem;
+            margin-top: 0.5rem;
+            font-weight: 300;
+        }
+
+        @keyframes gradient-shift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        /* Search container */
+        .search-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            margin-bottom: 2rem;
+        }
+
+        .search-wrapper {
+            position: relative;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .search-wrapper:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(100, 255, 218, 0.2);
+            border-color: rgba(100, 255, 218, 0.5);
+        }
+
+        .search-wrapper.active {
+            transform: scale(1.02);
+            border-color: #64ffda;
+            box-shadow: 0 0 40px rgba(100, 255, 218, 0.3);
+        }
+
+        .search-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: white;
+            font-size: 1.3rem;
+            font-weight: 300;
+            padding: 0.5rem 4rem 0.5rem 1rem;
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+            font-style: italic;
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, #64ffda, #4ecdc4);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(100, 255, 218, 0.3);
+        }
+
+        .search-btn:hover {
+            transform: translateY(-50%) scale(1.1);
+            box-shadow: 0 6px 25px rgba(100, 255, 218, 0.5);
+        }
+
+        .search-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: #0a0a0a;
+        }
+
+        /* Floating action buttons */
+        .floating-actions {
+            position: fixed;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            z-index: 100;
+        }
+
+        .floating-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .floating-btn:hover {
+            transform: scale(1.1);
+            background: rgba(100, 255, 218, 0.2);
+            border-color: #64ffda;
+        }
+
+        /* Results container */
+        .results-container {
+            width: 100%;
+            max-width: 900px;
+            margin-top: 2rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .results-container.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .result-item {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .result-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(100, 255, 218, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .result-item:hover::before {
+            left: 100%;
+        }
+
+        .result-item:hover {
+            transform: translateX(10px);
+            border-color: rgba(100, 255, 218, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .result-title {
+            color: #64ffda;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            text-decoration: none;
+            display: block;
+            transition: color 0.3s ease;
+        }
+
+        .result-title:hover {
+            color: #ff6b6b;
+        }
+
+        .result-url {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-description {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+
+        .result-score {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: linear-gradient(135deg, #ff6b6b, #ffd93d);
+            color: #0a0a0a;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* Loading animation */
+        .loading {
+            display: none;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 2rem;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(100, 255, 218, 0.3);
+            border-top: 3px solid #64ffda;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .logo h1 {
+                font-size: 2.5rem;
+            }
+
+            .floating-actions {
+                position: static;
+                flex-direction: row;
+                justify-content: center;
+                margin-top: 2rem;
+                transform: none;
+            }
+
+            .search-wrapper {
+                padding: 1rem;
+            }
+
+            .search-input {
+                font-size: 1.1rem;
+            }
+        }
+
+        /* Status indicator */
+        .status-indicator {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.8);
+            z-index: 100;
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #4ecdc4;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+<!-- Animated background elements -->
+<div class="particles" id="particles"></div>
+<div class="shape shape1"></div>
+<div class="shape shape2"></div>
+<div class="shape shape3"></div>
+
+<!-- Status indicator -->
+<div class="status-indicator">
+    <span class="status-dot"></span>
+    <span id="status-text">Ready</span>
+</div>
+
+<!-- Main container -->
+<div class="container">
+    <!-- Logo and branding -->
+    <div class="logo">
+        <h1>NEXUS</h1>
+        <p>Discover the extraordinary in the ordinary</p>
+    </div>
+
+    <!-- Search container -->
+    <div class="search-container">
+        <div class="search-wrapper" id="searchWrapper">
+            <input type="text" class="search-input" id="searchInput" placeholder="What mysteries await your discovery?">
+            <button class="search-btn" id="searchBtn">
+                <svg viewBox="0 0 24 24">
+                    <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading animation -->
+    <div class="loading" id="loading">
+        <div class="loading-spinner"></div>
+        <p>Searching through the digital cosmos...</p>
+    </div>
+
+    <!-- Results container -->
+    <div class="results-container" id="resultsContainer">
+        <!-- Results will be populated here -->
+    </div>
+</div>
+
+<!-- Floating action buttons -->
+<div class="floating-actions">
+    <div class="floating-btn" title="Voice Search" onclick="startVoiceSearch()">🎤</div>
+    <div class="floating-btn" title="Visual Search" onclick="startVisualSearch()">📷</div>
+    <div class="floating-btn" title="Random Search" onclick="randomSearch()">🎲</div>
+    <div class="floating-btn" title="Settings" onclick="toggleSettings()">⚙️</div>
+</div>
+
+<script>
+    // Sample API response data
+    const sampleApiResponse = {
+        "page": 1,
+        "page_size": 1,
+        "query": "where is taj mahal",
+        "response_time": 0.034050884,
+        "results": [
+            {
+                "doc_id": 400789,
+                "url": "https://goibibo.com/hotels/hotels-in-agra-ct/",
+                "title": "Hotels in Agra Book from 377 hotels",
+                "description": "Book Hotels in Agra at lowest Prices on Goibibo. Get Free Cancellation & Instant Refund on 377 Agra Room Booking starting from ₹139. Use code GETSETGO to get discounts upto 30% off on Agra Room Booking.",
+                "score": 24.103572031378075,
+                "snippet": "Book Hotels in Agra at lowest Prices on Goibibo. Get Free Cancellation & Instant Refund on 377 Agra Room Booking starting from ₹139. Use code GETSETGO..."
+            }
+        ],
+        "total": 104,
+        "total_pages": 104
+    };
+
+    // Initialize particles
+    function createParticles() {
+        const particlesContainer = document.getElementById('particles');
+        const particleCount = 50;
+
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 20 + 's';
+            particle.style.animationDuration = (Math.random() * 15 + 10) + 's';
+            particlesContainer.appendChild(particle);
+        }
+    }
+
+    // Search functionality
+    async function performSearch(query, page = 1, pageSize = 10) {
+        const loading = document.getElementById('loading');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const statusText = document.getElementById('status-text');
+
+        // Show loading
+        loading.classList.add('show');
+        resultsContainer.classList.remove('show');
+        statusText.textContent = 'Searching...';
+
+        try {
+            // Encode the query for URL
+            const encodedQuery = encodeURIComponent(query);
+            const apiUrl = `http://localhost:8080/search?q=${encodedQuery}&page=${page}&page_size=${pageSize}`;
+
+            // Make API call
+            const response = await fetch(apiUrl);
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            // Hide loading
+            loading.classList.remove('show');
+            statusText.textContent = `Found ${data.total} results (${data.response_time.toFixed(3)}s)`;
+
+            // Clear previous results
+            resultsContainer.innerHTML = '';
+
+            // Check if there are results
+            if (data.results && data.results.length > 0) {
+                // Populate results
+                data.results.forEach((result, index) => {
+                    console.log(result)
+                    const resultElement = document.createElement('div');
+                    resultElement.className = 'result-item';
+                    resultElement.style.animationDelay = (index * 0.1) + 's';
+
+                    resultElement.innerHTML = `
+                            <div class="result-score">Score: ${result.score.toFixed(1)}</div>
+                            <a href="${result.url}" class="result-title" target="_blank">${result.title}</a>
+                            <div class="result-url">${result.url}</div>
+                            <div class="result-description">${result.snippet}</div>
+                        `;
+
+                    resultsContainer.appendChild(resultElement);
+                });
+
+                // Add pagination info
+                const paginationInfo = document.createElement('div');
+                paginationInfo.className = 'pagination-info';
+                paginationInfo.innerHTML = `
+                        <div style="text-align: center; color: rgba(255, 255, 255, 0.6); margin-top: 2rem; padding: 1rem;">
+                            Page ${data.page} of ${data.total_pages} • Showing ${data.results.length} of ${data.total} results
+                        </div>
+                    `;
+                resultsContainer.appendChild(paginationInfo);
+            } else {
+                // No results found
+                const noResults = document.createElement('div');
+                noResults.className = 'no-results';
+                noResults.innerHTML = `
+                        <div style="text-align: center; color: rgba(255, 255, 255, 0.7); padding: 3rem;">
+                            <h3 style="margin-bottom: 1rem; color: #64ffda;">No results found</h3>
+                            <p>Try adjusting your search terms or exploring different keywords.</p>
+                        </div>
+                    `;
+                resultsContainer.appendChild(noResults);
+            }
+
+            // Show results with animation
+            resultsContainer.classList.add('show');
+
+        } catch (error) {
+            // Hide loading
+            loading.classList.remove('show');
+            statusText.textContent = 'Search error';
+
+            // Show error message
+            resultsContainer.innerHTML = '';
+            const errorElement = document.createElement('div');
+            errorElement.className = 'error-message';
+            errorElement.innerHTML = `
+                    <div style="text-align: center; color: #ff6b6b; padding: 3rem;">
+                        <h3 style="margin-bottom: 1rem;">Search Error</h3>
+                        <p style="color: rgba(255, 255, 255, 0.7);">
+                            ${error.message.includes('Failed to fetch') ?
+                'Unable to connect to search server. Please ensure the API is running on localhost:8080.' :
+                `Error: ${error.message}`}
+                        </p>
+                    </div>
+                `;
+            resultsContainer.appendChild(errorElement);
+            resultsContainer.classList.add('show');
+
+            console.error('Search error:', error);
+        }
+    }
+
+    // Event listeners
+    document.getElementById('searchBtn').addEventListener('click', () => {
+        const query = document.getElementById('searchInput').value.trim();
+        if (query) {
+            performSearch(query);
+        }
+    });
+
+    document.getElementById('searchInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            const query = e.target.value.trim();
+            if (query) {
+                performSearch(query);
+            }
+        }
+    });
+
+    // Search input focus effects
+    const searchWrapper = document.getElementById('searchWrapper');
+    const searchInput = document.getElementById('searchInput');
+
+    searchInput.addEventListener('focus', () => {
+        searchWrapper.classList.add('active');
+    });
+
+    searchInput.addEventListener('blur', () => {
+        searchWrapper.classList.remove('active');
+    });
+
+    // Floating action button functions
+    function startVoiceSearch() {
+        alert('Voice search feature would be implemented here!');
+    }
+
+    function startVisualSearch() {
+        alert('Visual search feature would be implemented here!');
+    }
+
+    function randomSearch() {
+        const randomQueries = [
+            'Stephen King',
+            'artificial intelligence',
+            'climate change solutions',
+            'space exploration',
+            'quantum computing',
+            'renewable energy',
+            'machine learning',
+            'digital transformation',
+            'sustainable development',
+            'biotechnology advances'
+        ];
+        const randomQuery = randomQueries[Math.floor(Math.random() * randomQueries.length)];
+        document.getElementById('searchInput').value = randomQuery;
+        performSearch(randomQuery);
+    }
+
+    function toggleSettings() {
+        alert('Settings panel would be implemented here!');
+    }
+
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', () => {
+        createParticles();
+
+        // Add some initial animation to the logo
+        const logo = document.querySelector('.logo h1');
+        logo.style.transform = 'scale(0.8)';
+        logo.style.opacity = '0';
+
+        setTimeout(() => {
+            logo.style.transition = 'all 1s ease';
+            logo.style.transform = 'scale(1)';
+            logo.style.opacity = '1';
+        }, 500);
+    });
+
+    // Add mouse movement effects
+    document.addEventListener('mousemove', (e) => {
+        const mouseX = e.clientX / window.innerWidth;
+        const mouseY = e.clientY / window.innerHeight;
+
+        // Subtle parallax effect on shapes
+        const shapes = document.querySelectorAll('.shape');
+        shapes.forEach((shape, index) => {
+            const speed = (index + 1) * 0.5;
+            const x = (mouseX - 0.5) * speed;
+            const y = (mouseY - 0.5) * speed;
+            shape.style.transform += ` translate(${x}px, ${y}px)`;
+        });
+    });
+</script>
+</body>
+</html>

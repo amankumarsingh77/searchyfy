@@ -264,13 +264,8 @@ Searchyfy supports multiple ranking algorithms:
 ### Using Docker Compose
 
 ```bash
-# Start all services
 docker-compose up -d
-
-# View logs
 docker-compose logs -f search_engine
-
-# Scale workers
 docker-compose up -d --scale crawler=3
 ```
 
@@ -336,15 +331,6 @@ On a standard development machine (8-core CPU, 16GB RAM):
 - **Search**: <50ms average response time
 - **Memory**: ~100MB base usage + ~1MB per 10K documents
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Support
-
-- **Issues**: Report bugs and request features via [GitHub Issues](https://github.com/amankumarsingh77/searchyfy/issues)
-- **Documentation**: Additional documentation available in the [docs](docs/) directory
-- **Community**: Join discussions in [GitHub Discussions](https://github.com/amankumarsingh77/searchyfy/discussions)
 
 ## Acknowledgments
 
